@@ -15,83 +15,86 @@ type JobService struct {
 }
 
 func (j *JobService) Start() error {
-	//start download
-	err := j.chanceJobStatus("DOWNLOADING")
+
+	err := j.changeJobStatus("DOWNLOADING")
+
 	if err != nil {
 		return j.failJob(err)
 	}
 
 	err = j.VideoService.Download(os.Getenv("inputBucketName"))
+
 	if err != nil {
 		return j.failJob(err)
 	}
-	//finish download
-	//start fragment
-	err = j.chanceJobStatus("FRAGMENTING")
+
+	err = j.changeJobStatus("FRAGMENTING")
+
 	if err != nil {
 		return j.failJob(err)
 	}
 
 	err = j.VideoService.Fragment()
+
 	if err != nil {
 		return j.failJob(err)
 	}
-	//finish fragment
-	//start encoder
-	err = j.chanceJobStatus("ENCODING")
+
+	err = j.changeJobStatus("ENCODING")
+
 	if err != nil {
 		return j.failJob(err)
 	}
 
 	err = j.VideoService.Encode()
-	if err != nil {
-		return j.failJob(err)
-	}
-	//finish encoder
-	//start upload
-	err = j.chanceJobStatus("UPLOADING")
+
 	if err != nil {
 		return j.failJob(err)
 	}
 
 	err = j.performUpload()
+
 	if err != nil {
 		return j.failJob(err)
 	}
-	//finish upload
-	//start finish
-	err = j.chanceJobStatus("FINISHING")
+
+	err = j.changeJobStatus("FINISHING")
+
 	if err != nil {
 		return j.failJob(err)
 	}
 
 	err = j.VideoService.Finish()
+
 	if err != nil {
 		return j.failJob(err)
 	}
-	//finish FINISHING
-	//start completed
-	err = j.chanceJobStatus("COMPLETED")
+
+	err = j.changeJobStatus("COMPLETED")
+
 	if err != nil {
 		return j.failJob(err)
 	}
-	//END
+
 	return nil
 }
 
 func (j *JobService) performUpload() error {
-	err := j.chanceJobStatus("UPLOADING")
+
+	err := j.changeJobStatus("UPLOADING")
+
 	if err != nil {
 		return j.failJob(err)
 	}
 
 	videoUpload := NewVideoUpload()
-	videoUpload.OutPutBucket = os.Getenv("outputBucketName")
+	videoUpload.OutputBucket = os.Getenv("outputBucketName")
 	videoUpload.VideoPath = os.Getenv("localStoragePath") + "/" + j.VideoService.Video.ID
-	concurrency, _ := strconv.Atoi(os.Getenv("concurrency_upload"))
+	concurrency, _ := strconv.Atoi(os.Getenv("CONCURRENCY_UPLOAD"))
 	doneUpload := make(chan string)
 
 	go videoUpload.ProcessUpload(concurrency, doneUpload)
+
 	var uploadResult string
 	uploadResult = <-doneUpload
 
@@ -101,8 +104,8 @@ func (j *JobService) performUpload() error {
 
 	return err
 }
-func (j *JobService) chanceJobStatus(status string) error {
 
+func (j *JobService) changeJobStatus(status string) error {
 	var err error
 
 	j.Job.Status = status
@@ -121,7 +124,8 @@ func (j *JobService) failJob(error error) error {
 	j.Job.Error = error.Error()
 
 	_, err := j.JobRepository.Update(j.Job)
-	if error != nil {
+
+	if err != nil {
 		return err
 	}
 

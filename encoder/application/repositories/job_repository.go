@@ -11,6 +11,7 @@ type JobRepository interface {
 	Find(id string) (*domain.Job, error)
 	Update(job *domain.Job) (*domain.Job, error)
 }
+
 type JobRepositoryDb struct {
 	Db *gorm.DB
 }
@@ -28,6 +29,7 @@ func (repo JobRepositoryDb) Insert(job *domain.Job) (*domain.Job, error) {
 }
 
 func (repo JobRepositoryDb) Find(id string) (*domain.Job, error) {
+
 	var job domain.Job
 	repo.Db.Preload("Video").First(&job, "id = ?", id)
 

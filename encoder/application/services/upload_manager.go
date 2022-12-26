@@ -14,7 +14,7 @@ import (
 type VideoUpload struct {
 	Paths        []string
 	VideoPath    string
-	OutPutBucket string
+	OutputBucket string
 	Erros        []string
 }
 
@@ -33,7 +33,7 @@ func (vu *VideoUpload) UploadObject(objectPath string, client *storage.Client, c
 
 	defer f.Close()
 
-	wc := client.Bucket(vu.OutPutBucket).Object(path[1]).NewWriter(ctx)
+	wc := client.Bucket(vu.OutputBucket).Object(path[1]).NewWriter(ctx)
 	wc.ACL = []storage.ACLRule{{Entity: storage.AllUsers, Role: storage.RoleReader}}
 
 	if _, err = io.Copy(wc, f); err != nil {

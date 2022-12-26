@@ -33,7 +33,7 @@ func TestVideoService_Upload(t *testing.T) {
 	require.Nil(t, err)
 
 	videoUpload := services.NewVideoUpload()
-	videoUpload.OutPutBucket = "codeleivitontest"
+	videoUpload.OutputBucket = "codeleivitontest"
 	videoUpload.VideoPath = os.Getenv("localStoragePath") + "/" + video.ID
 
 	doneUpload := make(chan string)
