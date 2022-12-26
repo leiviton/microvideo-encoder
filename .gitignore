@@ -1,4 +1,4 @@
 .pgdata
 .idea
-bucket-credential.json
-bucket-credentialbkp.json
+/bucket-credential.json
+/bucket-credentialbkp.json
